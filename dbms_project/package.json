@@ -1,0 +1,27 @@
+{
+  "name": "banking-management-system-adbms",
+  "version": "1.0.0",
+  "description": "College ADBMS Project: Banking Management System with Rule-Based Fraud Detection",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "setup-db": "node database/setup.js"
+  },
+  "keywords": [
+    "adbms",
+    "banking",
+    "fraud-detection",
+    "postgresql",
+    "plpgsql",
+    "express"
+  ],
+  "author": "ADBMS Project Team",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.3"
+  }
+}

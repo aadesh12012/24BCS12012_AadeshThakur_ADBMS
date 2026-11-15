@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Financial — Modern Banking & Risk Platform</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- Global Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- ========================================================================= -->
+    <!-- 1. LOGIN SCREEN -->
+    <!-- ========================================================================= -->
+    <div id="loginScreen" class="login-wrapper">
+        <div class="login-container">
+            
+            <!-- Branding Header -->
+            <div class="login-brand">
+                <div class="brand-badge">
+                    <i data-lucide="shield-check" class="brand-icon"></i>
+                </div>
+                <h1 class="login-title">Apex Financial</h1>
+                <p class="login-subtitle">Core banking operations & real-time risk intelligence</p>
+            </div>
+
+            <!-- Login Card -->
+            <div class="card login-card">
+                
+                <!-- Role Toggle Tabs -->
+                <div class="segmented-control">
+                    <button id="tabCustomerBtn" class="segment-btn active" onclick="switchLoginRole('CUSTOMER')">
+                        <i data-lucide="user" class="icon-sm"></i> Customer Portal
+                    </button>
+                    <button id="tabAdminBtn" class="segment-btn" onclick="switchLoginRole('ADMIN')">
+                        <i data-lucide="shield" class="icon-sm"></i> Risk Console
+                    </button>
+                </div>
+
+                <!-- Customer Form -->
+                <form id="customerLoginForm" class="auth-form" onsubmit="handleCustomerLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="custUsername">Username</label>
+                        <div class="input-icon-wrapper">
+                            <i data-lucide="user" class="input-icon"></i>
+                            <input type="text" id="custUsername" class="form-input" placeholder="e.g. rajesh" required autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="custPassword">Password</label>
+                        <div class="input-icon-wrapper">
+                            <i data-lucide="lock" class="input-icon"></i>
+                            <input type="password" id="custPassword" class="form-input" placeholder="Enter password" required autocomplete="current-password">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnCustomerSubmit">
+                        <span>Sign In</span>
+                        <i data-lucide="arrow-right" class="icon-sm"></i>
+                    </button>
+                </form>
+
+                <!-- Admin Form -->
+                <form id="adminLoginForm" class="auth-form hidden" onsubmit="handleAdminLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="adminUsername">Admin Username</label>
+                        <div class="input-icon-wrapper">
+                            <i data-lucide="shield" class="input-icon"></i>
+                            <input type="text" id="adminUsername" class="form-input" placeholder="e.g. admin" required autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="adminPassword">Master Password</label>
+                        <div class="input-icon-wrapper">
+                            <i data-lucide="key" class="input-icon"></i>
+                            <input type="password" id="adminPassword" class="form-input" placeholder="Enter master password" required autocomplete="current-password">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnAdminSubmit">
+                        <span>Access Admin Console</span>
+                        <i data-lucide="arrow-right" class="icon-sm"></i>
+                    </button>
+                </form>
+
+                <!-- 1-Click Demo Credentials Quick Bar -->
+                <div class="demo-credential-section">
+                    <span class="demo-section-label">Demo Credentials (1-Click Fill)</span>
+                    <div class="demo-chips">
+                        <button type="button" class="chip-item" onclick="quickFillLogin('rajesh', 'password123', 'CUSTOMER')">
+                            <strong>Rajesh</strong> (₹1,00,000)
+                        </button>
+                        <button type="button" class="chip-item" onclick="quickFillLogin('priya', 'password123', 'CUSTOMER')">
+                            <strong>Priya</strong> (₹75,000)
+                        </button>
+                        <button type="button" class="chip-item" onclick="quickFillLogin('amit', 'password123', 'CUSTOMER')">
+                            <strong>Amit</strong> (₹50,000)
+                        </button>
+                        <button type="button" class="chip-item chip-item-admin" onclick="quickFillLogin('admin', 'admin123', 'ADMIN')">
+                            <strong>Admin</strong>
+                        </button>
+                    </div>
+                    <div class="security-hint-banner">
+                        <i data-lucide="info" class="icon-sm text-warning"></i>
+                        <span><strong>Rule 3 Anomaly Demo:</strong> Enter an invalid password 3 consecutive times to trigger the database security trigger and lock the account automatically.</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Meta -->
+            <div class="login-footer">
+                <span>Apex Financial Core Banking • PostgreSQL + Node.js Express</span>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ========================================================================= -->
+    <!-- 2. MAIN APPLICATION SHELL (SIDEBAR + MAIN CONTENT) -->
+    <!-- ========================================================================= -->
+    <div id="appShell" class="app-shell hidden">
+
+        <!-- Mobile Sidebar Overlay Backdrop -->
+        <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleMobileSidebar()"></div>
+
+        <!-- SIDEBAR -->
+        <aside id="mainSidebar" class="app-sidebar">
+            
+            <!-- Sidebar Header / Logo -->
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-mark">
+                        <i data-lucide="shield-check" class="icon-md"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="brand-name">Apex Financial</span>
+                        <span id="sidebarRoleLabel" class="brand-tag">Banking</span>
+                    </div>
+                </div>
+                <button class="mobile-sidebar-close" onclick="toggleMobileSidebar()" title="Close Sidebar">
+                    <i data-lucide="x" class="icon-sm"></i>
+                </button>
+            </div>
+
+            <!-- Customer Navigation Links -->
+            <nav id="customerNav" class="sidebar-navigation">
+                <div class="nav-section-label">Menu</div>
+                <a href="#overview" class="nav-item active" onclick="switchCustomerTab('overview')">
+                    <i data-lucide="layout-dashboard" class="nav-icon"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#accounts" class="nav-item" onclick="switchCustomerTab('accounts')">
+                    <i data-lucide="credit-card" class="nav-icon"></i>
+                    <span>My Accounts</span>
+                </a>
+                <a href="#transactions" class="nav-item" onclick="switchCustomerTab('transactions')">
+                    <i data-lucide="receipt" class="nav-icon"></i>
+                    <span>Transactions</span>
+                </a>
+                <a href="#transfer" class="nav-item" onclick="switchCustomerTab('transfer')">
+                    <i data-lucide="send" class="nav-icon"></i>
+                    <span>Transfer Money</span>
+                </a>
+
+                <div class="nav-section-label">System</div>
+                <a href="#notifications" class="nav-item" onclick="switchCustomerTab('notifications')">
+                    <i data-lucide="bell" class="nav-icon"></i>
+                    <span>Notifications</span>
+                </a>
+                <a href="#settings" class="nav-item" onclick="switchCustomerTab('settings')">
+                    <i data-lucide="settings" class="nav-icon"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <!-- Admin Navigation Links -->
+            <nav id="adminNav" class="sidebar-navigation hidden">
+                <div class="nav-section-label">Operations</div>
+                <a href="#adminOverview" class="nav-item active" onclick="switchAdminTab('overview')">
+                    <i data-lucide="layout-dashboard" class="nav-icon"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#adminCustomers" class="nav-item" onclick="switchAdminTab('customers')">
+                    <i data-lucide="users" class="nav-icon"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="#adminAccounts" class="nav-item" onclick="switchAdminTab('accounts')">
+                    <i data-lucide="wallet" class="nav-icon"></i>
+                    <span>Bank Accounts</span>
+                </a>
+                <a href="#adminTransactions" class="nav-item" onclick="switchAdminTab('transactions')">
+                    <i data-lucide="arrow-left-right" class="nav-icon"></i>
+                    <span>Transactions</span>
+                </a>
+
+                <div class="nav-section-label">Risk & Security</div>
+                <a href="#adminFraud" class="nav-item nav-item-fraud" onclick="switchAdminTab('fraud')">
+                    <i data-lucide="shield-alert" class="nav-icon text-warning"></i>
+                    <span>Fraud Monitoring</span>
+                    <span id="badgeFraudAlertsCount" class="nav-badge-pill">0</span>
+                </a>
+                <a href="#adminAlerts" class="nav-item" onclick="switchAdminTab('alerts')">
+                    <i data-lucide="alert-triangle" class="nav-icon"></i>
+                    <span>Fraud Alerts</span>
+                </a>
+                <a href="#adminAudit" class="nav-item" onclick="switchAdminTab('audit')">
+                    <i data-lucide="file-check-2" class="nav-icon"></i>
+                    <span>Audit Logs</span>
+                </a>
+            </nav>
+
+            <!-- Sidebar User Profile & Sign Out Footer -->
+            <div class="sidebar-footer">
+                <div class="user-profile-widget">
+                    <div id="userAvatarBadge" class="avatar-circle">U</div>
+                    <div class="user-info-text">
+                        <span id="sidebarUserName" class="user-display-name">User</span>
+                        <span id="sidebarUserSub" class="user-display-sub">Account</span>
+                    </div>
+                </div>
+                <button class="btn-icon-subtle" onclick="logout()" title="Sign Out">
+                    <i data-lucide="log-out" class="icon-sm"></i>
+                </button>
+            </div>
+
+        </aside>
+
+        <!-- MAIN VIEW AREA -->
+        <main class="app-main-content">
+
+            <!-- TOP NAVBAR -->
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-trigger" onclick="toggleMobileSidebar()" title="Toggle Menu">
+                        <i data-lucide="menu" class="icon-md"></i>
+                    </button>
+                    <div>
+                        <h2 id="topbarTitle" class="topbar-title">Overview</h2>
+                        <span id="topbarSubtitle" class="topbar-subtitle">Account summary and live balance</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <!-- Live Database Connection Indicator -->
+                    <div class="system-status-pill">
+                        <span class="status-indicator-dot"></span>
+                        <span id="dbStatusLabel" class="status-text">PostgreSQL Active</span>
+                    </div>
+
+                    <!-- Quick Action Buttons for Customer -->
+                    <div id="topbarCustomerActions" class="topbar-actions">
+                        <button class="btn btn-outline btn-sm" onclick="openDepositModal()">
+                            <i data-lucide="arrow-down-left" class="icon-sm text-success"></i>
+                            <span>Deposit</span>
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="openWithdrawModal()">
+                            <i data-lucide="arrow-up-right" class="icon-sm text-warning"></i>
+                            <span>Withdraw</span>
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="switchCustomerTab('transfer')">
+                            <i data-lucide="send" class="icon-sm"></i>
+                            <span>Transfer</span>
+                        </button>
+                    </div>
+
+                    <!-- Refresh Button -->
+                    <button class="btn btn-outline btn-sm" onclick="refreshCurrentView()" title="Refresh Data">
+                        <i data-lucide="refresh-cw" class="icon-sm"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ========================================================================= -->
+            <!-- 3. CUSTOMER DASHBOARD VIEWS -->
+            <!-- ========================================================================= -->
+            <div id="customerViews" class="dashboard-content-wrapper">
+
+                <!-- 3.1 CUSTOMER OVERVIEW TAB -->
+                <div id="custTabOverview" class="content-tab-pane">
+                    
+                    <!-- Welcome Header -->
+                    <div class="section-header-row">
+                        <div>
+                            <h1 id="custWelcomeHeading" class="heading-h1-compact">Welcome, Rajesh</h1>
+                            <p class="text-secondary">Here is what is happening with your account today.</p>
+                        </div>
+                    </div>
+
+                    <!-- Hero Balance & Summary Cards Grid -->
+                    <div class="cards-grid-hero">
+                        
+                        <!-- Primary Balance Card -->
+                        <div class="card card-balance-hero">
+                            <div class="balance-card-header">
+                                <div>
+                                    <span class="balance-card-label">Total Account Balance</span>
+                                    <div class="balance-display-row">
+                                        <h1 id="custBalanceValue" class="balance-amount-text">₹1,00,000.00</h1>
+                                        <button class="btn-icon-ghost" onclick="toggleBalanceVisibility()" title="Show/Hide Balance">
+                                            <i data-lucide="eye" id="eyeIcon" class="icon-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="badge-account-type">
+                                    <span id="custAccountTypeBadge">SAVINGS</span>
+                                </div>
+                            </div>
+
+                            <div class="balance-card-meta">
+                                <div class="meta-item">
+                                    <span class="meta-label">Account Number</span>
+                                    <span id="custAccountNoText" class="meta-val font-mono">ACC1001001</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">Routing / IFSC</span>
+                                    <span class="meta-val font-mono">APEX0004910</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">Status</span>
+                                    <span id="custAccountStatusBadge" class="badge badge-success">ACTIVE</span>
+                                </div>
+                            </div>
+
+                            <div class="balance-card-quick-actions">
+                                <button class="btn btn-outline btn-sm" onclick="openDepositModal()">
+                                    <i data-lucide="plus-circle" class="icon-sm text-success"></i> Deposit
+                                </button>
+                                <button class="btn btn-outline btn-sm" onclick="openWithdrawModal()">
+                                    <i data-lucide="minus-circle" class="icon-sm text-warning"></i> Withdraw
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="switchCustomerTab('transfer')">
+                                    <i data-lucide="send" class="icon-sm"></i> Transfer Money
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Monthly Cashflow Summary Card -->
+                        <div class="card card-summary-metrics">
+                            <h3 class="card-title">Monthly Summary</h3>
+                            <p class="text-secondary text-sm">Real-time ledger flow calculation</p>
+                            
+                            <div class="metric-flow-list">
+                                <div class="flow-item">
+                                    <div class="flow-label-group">
+                                        <div class="flow-icon-circle bg-success-subtle">
+                                            <i data-lucide="arrow-down-left" class="icon-sm text-success"></i>
+                                        </div>
+                                        <div>
+                                            <span class="flow-name">Total Inflow</span>
+                                            <span class="flow-sub">Deposits & incoming transfers</span>
+                                        </div>
+                                    </div>
+                                    <span id="custTotalInflow" class="flow-val text-success">+₹25,000.00</span>
+                                </div>
+
+                                <div class="flow-item">
+                                    <div class="flow-label-group">
+                                        <div class="flow-icon-circle bg-warning-subtle">
+                                            <i data-lucide="arrow-up-right" class="icon-sm text-warning"></i>
+                                        </div>
+                                        <div>
+                                            <span class="flow-name">Total Outflow</span>
+                                            <span class="flow-sub">Withdrawals & outbound transfers</span>
+                                        </div>
+                                    </div>
+                                    <span id="custTotalOutflow" class="flow-val text-secondary">-₹5,000.00</span>
+                                </div>
+
+                                <div class="flow-item-total">
+                                    <span>Net Inflow</span>
+                                    <span id="custNetCashflow" class="flow-val-total text-primary">+₹20,000.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Account Activity Chart Section -->
+                    <div class="card card-chart-section mt-4">
+                        <div class="card-header-flex">
+                            <div>
+                                <h3 class="card-title">Account Activity</h3>
+                                <p class="text-secondary text-sm">Monthly transaction volume breakdown</p>
+                            </div>
+                            <div class="chart-legend-pills">
+                                <span class="legend-pill"><span class="legend-dot bg-primary"></span> Inflow</span>
+                                <span class="legend-pill"><span class="legend-dot bg-warning"></span> Outflow</span>
+                            </div>
+                        </div>
+                        <div class="chart-canvas-container">
+                            <canvas id="customerActivityChart" height="110"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Transactions Table Card -->
+                    <div class="card mt-4">
+                        <div class="card-header-flex">
+                            <div>
+                                <h3 class="card-title">Recent Transactions</h3>
+                                <p class="text-secondary text-sm">Showing the latest account transactions recorded in database</p>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="switchCustomerTab('transactions')">
+                                <span>View All</span>
+                                <i data-lucide="arrow-right" class="icon-xs"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction ID</th>
+                                        <th>Date & Time</th>
+                                        <th>Type</th>
+                                        <th>Recipient / Details</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="custRecentTxTableBody">
+                                    <tr><td colspan="6" class="text-center text-muted py-4">Loading transactions...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 3.2 CUSTOMER TRANSFER MONEY TAB -->
+                <div id="custTabTransfer" class="content-tab-pane hidden">
+                    <div class="transfer-grid-layout">
+                        
+                        <!-- Transfer Form Card -->
+                        <div class="card">
+                            <div class="card-header-bordered">
+                                <h3 class="card-title">Transfer Funds</h3>
+                                <p class="text-secondary text-sm">Atomic account-to-account money transfer powered by PostgreSQL Stored Procedure <code>sp_transfer_money</code></p>
+                            </div>
+
+                            <form id="transferMoneyForm" class="p-6" onsubmit="handleTransferSubmit(event)">
+                                <div class="form-group">
+                                    <label class="form-label" for="transferRecipientSelect">Beneficiary Account</label>
+                                    <select id="transferRecipientSelect" class="form-select" required>
+                                        <option value="">-- Select Recipient --</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="transferAmountInput">Amount (₹)</label>
+                                    <div class="input-icon-wrapper">
+                                        <span class="currency-prefix">₹</span>
+                                        <input type="number" id="transferAmountInput" class="form-input pl-8" min="1" step="0.01" placeholder="Enter amount, e.g. 5000" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="transferRemarksInput">Remarks / Note (Optional)</label>
+                                    <input type="text" id="transferRemarksInput" class="form-input" placeholder="e.g. Project payment, rent, gift">
+                                </div>
+
+                                <!-- 1-Click Interactive Demo Actions -->
+                                <div class="demo-trigger-card">
+                                    <div class="demo-trigger-label">
+                                        <i data-lucide="sparkles" class="icon-xs text-primary"></i>
+                                        <span>Interactive Anomaly Simulation Triggers:</span>
+                                    </div>
+                                    <div class="demo-trigger-buttons">
+                                        <button type="button" class="btn btn-outline btn-sm" onclick="setTransferDemo(5000, 'Standard demo transfer ₹5,000')">
+                                            Normal: ₹5,000
+                                        </button>
+                                        <button type="button" class="btn btn-outline btn-sm btn-warn-outline" onclick="setTransferDemo(60000, 'High-value transaction demo ₹60,000')">
+                                            <i data-lucide="alert-triangle" class="icon-xs text-warning"></i>
+                                            Flag Rule 1: ₹60,000
+                                        </button>
+                                        <button type="button" class="btn btn-outline btn-sm btn-danger-outline" onclick="triggerRapidBurstDemo()">
+                                            <i data-lucide="zap" class="icon-xs text-danger"></i>
+                                            Burst Rule 2: 4 Rapid Tx
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="form-submit-row">
+                                    <button type="submit" class="btn btn-primary btn-lg" id="btnTransferSubmit">
+                                        <i data-lucide="send" class="icon-sm"></i>
+                                        <span>Confirm & Transfer</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Info Sidebar / Security Info -->
+                        <div class="card p-6">
+                            <h3 class="card-title mb-2">Automated Fraud Rules</h3>
+                            <p class="text-secondary text-sm mb-4">Every transfer is analyzed automatically within the database engine via PL/pgSQL triggers.</p>
+
+                            <div class="info-rules-list">
+                                <div class="info-rule-box">
+                                    <div class="info-rule-icon bg-warning-subtle">
+                                        <i data-lucide="banknote" class="icon-sm text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <span class="info-rule-title">Rule 1: High-Value Threshold</span>
+                                        <p class="info-rule-desc">Any single transaction greater than ₹50,000 is marked as SUSPICIOUS and held for admin review.</p>
+                                    </div>
+                                </div>
+
+                                <div class="info-rule-box">
+                                    <div class="info-rule-icon bg-warning-subtle">
+                                        <i data-lucide="activity" class="icon-sm text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <span class="info-rule-title">Rule 2: Velocity Anomaly</span>
+                                        <p class="info-rule-desc">More than 3 transactions executed from the same account in under 60 seconds triggers a rapid burst alert.</p>
+                                    </div>
+                                </div>
+
+                                <div class="info-rule-box">
+                                    <div class="info-rule-icon bg-warning-subtle">
+                                        <i data-lucide="lock" class="icon-sm text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <span class="info-rule-title">Rule 3: Login Security Policy</span>
+                                        <p class="info-rule-desc">3 consecutive failed login attempts automatically flags and locks the customer account.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 3.3 CUSTOMER TRANSACTIONS TAB -->
+                <div id="custTabTransactions" class="content-tab-pane hidden">
+                    <div class="card">
+                        <div class="card-header-flex">
+                            <div>
+                                <h3 class="card-title">Account Statement</h3>
+                                <p class="text-secondary text-sm">Full journal history from database View <code>vw_customer_transaction_history</code></p>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="loadCustomerData()">
+                                <i data-lucide="refresh-cw" class="icon-sm"></i> Refresh Statement
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tx ID</th>
+                                        <th>Date & Time</th>
+                                        <th>Type</th>
+                                        <th>Sender / Beneficiary</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="custFullTxTableBody">
+                                    <tr><td colspan="7" class="text-center text-muted py-4">Loading transactions...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3.4 CUSTOMER MY ACCOUNTS TAB -->
+                <div id="custTabAccounts" class="content-tab-pane hidden">
+                    <div class="card p-6">
+                        <h3 class="card-title mb-1">Account Portfolio</h3>
+                        <p class="text-secondary text-sm mb-6">Detailed specifications of your registered bank accounts</p>
+
+                        <div class="accounts-detail-grid">
+                            <div class="account-card-styled">
+                                <div class="acc-top">
+                                    <span class="acc-type-chip">SAVINGS ACCOUNT</span>
+                                    <span class="badge badge-success">ACTIVE</span>
+                                </div>
+                                <h2 id="cardDetailBalance" class="acc-balance-display">₹1,00,000.00</h2>
+                                <div class="acc-meta-grid">
+                                    <div>
+                                        <span class="text-xs text-muted">ACCOUNT NUMBER</span>
+                                        <p id="cardDetailAccNo" class="font-mono text-sm font-semibold">ACC1001001</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-muted">BRANCH CODE</span>
+                                        <p class="font-mono text-sm font-semibold">APEX-B012</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-muted">ANNUAL INTEREST</span>
+                                        <p class="text-sm font-semibold text-success">4.25% p.a.</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-muted">OPENED DATE</span>
+                                        <p class="text-sm font-semibold">12-Jan-2025</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3.5 CUSTOMER NOTIFICATIONS TAB -->
+                <div id="custTabNotifications" class="content-tab-pane hidden">
+                    <div class="card p-6">
+                        <h3 class="card-title mb-1">Security & Account Notifications</h3>
+                        <p class="text-secondary text-sm mb-4">Audit messages and transaction security updates</p>
+                        <div id="customerNotificationsList" class="notification-stream">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3.6 CUSTOMER SETTINGS TAB -->
+                <div id="custTabSettings" class="content-tab-pane hidden">
+                    <div class="card p-6">
+                        <h3 class="card-title mb-1">Customer Profile & Security Settings</h3>
+                        <p class="text-secondary text-sm mb-6">Manage your contact information and credentials</p>
+                        
+                        <div class="settings-form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" id="setCustName" class="form-input" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" id="setCustEmail" class="form-input" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" id="setCustPhone" class="form-input" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Username</label>
+                                <input type="text" id="setCustUsername" class="form-input" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ========================================================================= -->
+            <!-- 4. ADMIN DASHBOARD VIEWS -->
+            <!-- ========================================================================= -->
+            <div id="adminViews" class="dashboard-content-wrapper hidden">
+
+                <!-- 4.1 ADMIN OVERVIEW TAB -->
+                <div id="admTabOverview" class="content-tab-pane">
+                    
+                    <!-- Page Header -->
+                    <div class="section-header-row">
+                        <div>
+                            <h1 class="heading-h1-compact">Risk & Operations Overview</h1>
+                            <p class="text-secondary">System-wide monitoring of customers, accounts, and fraud anomalies.</p>
+                        </div>
+                    </div>
+
+                    <!-- 5 Metric KPI Cards -->
+                    <div class="admin-kpi-grid">
+                        <div class="card kpi-card">
+                            <span class="kpi-label">Total Customers</span>
+                            <h2 id="admMetricCustomers" class="kpi-value">0</h2>
+                            <span class="kpi-sub"><i data-lucide="users" class="icon-xs text-primary"></i> Registered</span>
+                        </div>
+
+                        <div class="card kpi-card">
+                            <span class="kpi-label">Active Bank Accounts</span>
+                            <h2 id="admMetricAccounts" class="kpi-value">0</h2>
+                            <span class="kpi-sub"><i data-lucide="wallet" class="icon-xs text-success"></i> Verified</span>
+                        </div>
+
+                        <div class="card kpi-card">
+                            <span class="kpi-label">Total Transactions</span>
+                            <h2 id="admMetricTransactions" class="kpi-value">0</h2>
+                            <span class="kpi-sub"><i data-lucide="arrow-left-right" class="icon-xs text-primary"></i> In system ledger</span>
+                        </div>
+
+                        <div class="card kpi-card kpi-card-warning">
+                            <span class="kpi-label">Suspicious Transactions</span>
+                            <h2 id="admMetricSuspicious" class="kpi-value text-warning">0</h2>
+                            <span class="kpi-sub text-warning"><i data-lucide="alert-triangle" class="icon-xs"></i> Flagged anomalies</span>
+                        </div>
+
+                        <div class="card kpi-card kpi-card-danger">
+                            <span class="kpi-label">Pending Investigations</span>
+                            <h2 id="admMetricPending" class="kpi-value text-danger">0</h2>
+                            <span class="kpi-sub text-danger"><i data-lucide="shield-alert" class="icon-xs"></i> Awaiting resolution</span>
+                        </div>
+                    </div>
+
+                    <!-- System Volume Chart -->
+                    <div class="card card-chart-section mt-4">
+                        <div class="card-header-flex">
+                            <div>
+                                <h3 class="card-title">Transaction Volume Overview</h3>
+                                <p class="text-secondary text-sm">Real-time banking activity across customer accounts</p>
+                            </div>
+                        </div>
+                        <div class="chart-canvas-container">
+                            <canvas id="adminVolumeChart" height="95"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Quick Alerts Action Table -->
+                    <div class="card mt-4">
+                        <div class="card-header-flex">
+                            <div>
+                                <h3 class="card-title">Active Fraud Alerts</h3>
+                                <p class="text-secondary text-sm">Alerts currently awaiting administrator approval or rejection</p>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="switchAdminTab('fraud')">
+                                <span>Go to Fraud Console</span>
+                                <i data-lucide="arrow-right" class="icon-xs"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Alert ID</th>
+                                        <th>Timestamp</th>
+                                        <th>Rule Triggered</th>
+                                        <th>Customer / Account</th>
+                                        <th>Severity</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admQuickAlertsTableBody">
+                                    <tr><td colspan="8" class="text-center text-muted py-4">Loading active alerts...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 4.2 DEDICATED FRAUD MONITORING CONSOLE TAB -->
+                <div id="admTabFraud" class="content-tab-pane hidden">
+                    
+                    <div class="section-header-row">
+                        <div>
+                            <h1 class="heading-h1-compact">Fraud Monitoring Interface</h1>
+                            <p class="text-secondary">Automated anomaly detection, high-value alerts, velocity bursts, and lockout reviews.</p>
+                        </div>
+                    </div>
+
+                    <!-- Fraud Breakdown Cards -->
+                    <div class="fraud-metrics-row">
+                        <div class="card fraud-stat-box">
+                            <span class="fraud-stat-num text-danger" id="fCountSuspicious">0</span>
+                            <span class="fraud-stat-label">Suspicious Tx Count</span>
+                        </div>
+                        <div class="card fraud-stat-box">
+                            <span class="fraud-stat-num text-warning" id="fCountPending">0</span>
+                            <span class="fraud-stat-label">Pending In Review</span>
+                        </div>
+                        <div class="card fraud-stat-box">
+                            <span class="fraud-stat-num" id="fCountHighValue">0</span>
+                            <span class="fraud-stat-label">High-Value Alerts (Rule 1)</span>
+                        </div>
+                        <div class="card fraud-stat-box">
+                            <span class="fraud-stat-num" id="fCountRapid">0</span>
+                            <span class="fraud-stat-label">Velocity Bursts (Rule 2)</span>
+                        </div>
+                        <div class="card fraud-stat-box">
+                            <span class="fraud-stat-num" id="fCountLogins">0</span>
+                            <span class="fraud-stat-label">Failed Logins (Rule 3)</span>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Fraud Alerts Table -->
+                    <div class="card mt-4">
+                        <div class="card-header-flex">
+                            <div>
+                                <h3 class="card-title">Fraud Investigation Journal</h3>
+                                <p class="text-secondary text-sm">Queried live from database View <code>vw_fraud_alerts_detail</code></p>
+                            </div>
+                            <div class="table-filter-controls">
+                                <select id="adminFraudFilterSelect" class="form-select form-select-sm" onchange="loadAdminFraudAlerts()">
+                                    <option value="">All Statuses</option>
+                                    <option value="PENDING" selected>Pending Review</option>
+                                    <option value="APPROVED">Approved</option>
+                                    <option value="REJECTED">Rejected & Reversed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Alert ID</th>
+                                        <th>Customer</th>
+                                        <th>Account</th>
+                                        <th>Amount</th>
+                                        <th>Fraud Reason</th>
+                                        <th>Date & Time</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admFullFraudTableBody">
+                                    <tr><td colspan="8" class="text-center text-muted py-4">Loading fraud records...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 4.3 ADMIN CUSTOMERS TAB -->
+                <div id="admTabCustomers" class="content-tab-pane hidden">
+                    <div class="card">
+                        <div class="card-header-flex">
+                            <div>
+                                <h3 class="card-title">Customer Directory</h3>
+                                <p class="text-secondary text-sm">Relational join of <code>CUSTOMERS ⨝ BANK_ACCOUNTS</code></p>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="loadAdminCustomers()">
+                                <i data-lucide="refresh-cw" class="icon-sm"></i> Refresh
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cust ID</th>
+                                        <th>Full Name</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Account No</th>
+                                        <th>Balance</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admCustomersTableBody">
+                                    <tr><td colspan="9" class="text-center text-muted py-4">Loading customers...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4.4 ADMIN BANK ACCOUNTS TAB -->
+                <div id="admTabAccounts" class="content-tab-pane hidden">
+                    <div class="card">
+                        <div class="card-header-flex">
+                            <div>
+                                <h3 class="card-title">Bank Accounts Ledger</h3>
+                                <p class="text-secondary text-sm">Account balances and audit reconciliation</p>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="loadAdminAccounts()">
+                                <i data-lucide="refresh-cw" class="icon-sm"></i> Refresh
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Account No</th>
+                                        <th>Account Type</th>
+                                        <th>Account Holder</th>
+                                        <th>Balance</th>
+                                        <th>Status</th>
+                                        <th>Reconciliation Audit</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admAccountsTableBody">
+                                    <tr><td colspan="6" class="text-center text-muted py-4">Loading accounts...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4.5 ADMIN TRANSACTIONS TAB -->
+                <div id="admTabTransactions" class="content-tab-pane hidden">
+                    <div class="card">
+                        <div class="card-header-flex">
+                            <div>
+                                <h3 class="card-title">Master Bank Transaction Journal</h3>
+                                <p class="text-secondary text-sm">Complete transaction audit journal</p>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="loadAdminTransactions()">
+                                <i data-lucide="refresh-cw" class="icon-sm"></i> Refresh
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tx ID</th>
+                                        <th>Date & Time</th>
+                                        <th>Sender Account</th>
+                                        <th>Sender Customer</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Beneficiary</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admTransactionsTableBody">
+                                    <tr><td colspan="8" class="text-center text-muted py-4">Loading master transactions...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4.6 ADMIN AUDIT LOGS TAB -->
+                <div id="admTabAudit" class="content-tab-pane hidden">
+                    <div class="card p-6">
+                        <h3 class="card-title mb-1">ADBMS Technical Audit & Integrity Engine</h3>
+                        <p class="text-secondary text-sm mb-6">Database constructs enforcing transactional integrity and security rules</p>
+
+                        <div class="audit-concepts-grid">
+                            <div class="audit-concept-card">
+                                <h4><i data-lucide="database" class="icon-sm text-primary"></i> Stored Procedures</h4>
+                                <p><code>sp_deposit_money</code>, <code>sp_withdraw_money</code>, <code>sp_transfer_money</code> implement row-level locks (<code>FOR UPDATE</code>) and strict ascending lock acquisition order to prevent deadlocks.</p>
+                            </div>
+                            <div class="audit-concept-card">
+                                <h4><i data-lucide="shield" class="icon-sm text-primary"></i> PL/pgSQL Triggers</h4>
+                                <p><code>trg_before_transaction_insert</code> and <code>trg_after_transaction_insert</code> automatically intercept transactions > ₹50,000 and bursts > 3 tx/min.</p>
+                            </div>
+                            <div class="audit-concept-card">
+                                <h4><i data-lucide="rotate-ccw" class="icon-sm text-primary"></i> Compensating Rollbacks</h4>
+                                <p>When an admin rejects a flagged transaction via <code>sp_resolve_fraud_alert</code>, funds are atomically reverted to the sender.</p>
+                            </div>
+                            <div class="audit-concept-card">
+                                <h4><i data-lucide="calculator" class="icon-sm text-primary"></i> Ledger Functions</h4>
+                                <p><code>fn_calculate_ledger_balance</code> audits stored account balance against the cumulative sum of deposits, withdrawals, and transfers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+
+    <!-- ========================================================================= -->
+    <!-- 5. REUSABLE MODALS: DEPOSIT, WITHDRAW, ALERT DETAILS & RESOLUTION -->
+    <!-- ========================================================================= -->
+
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="modal-backdrop hidden">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title-group">
+                        <div class="icon-pill bg-success-subtle">
+                            <i data-lucide="arrow-down-left" class="icon-sm text-success"></i>
+                        </div>
+                        <div>
+                            <h3 class="modal-title">Deposit Money</h3>
+                            <p class="modal-subtitle">Processed by Stored Procedure <code>sp_deposit_money</code></p>
+                        </div>
+                    </div>
+                    <button class="btn-close-modal" onclick="closeModal('depositModal')">&times;</button>
+                </div>
+                <form id="depositModalForm" onsubmit="handleDepositSubmit(event)">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="form-label" for="modalDepositAmount">Amount (₹)</label>
+                            <div class="input-icon-wrapper">
+                                <span class="currency-prefix">₹</span>
+                                <input type="number" id="modalDepositAmount" class="form-input pl-8" min="1" step="0.01" placeholder="10000" required>
+                            </div>
+                        </div>
+                        <div class="quick-amount-chips">
+                            <button type="button" class="chip-sm" onclick="document.getElementById('modalDepositAmount').value = 5000">₹5,000</button>
+                            <button type="button" class="chip-sm" onclick="document.getElementById('modalDepositAmount').value = 10000">₹10,000</button>
+                            <button type="button" class="chip-sm" onclick="document.getElementById('modalDepositAmount').value = 25000">₹25,000</button>
+                            <button type="button" class="chip-sm chip-warn" onclick="document.getElementById('modalDepositAmount').value = 60000">₹60,000 (Rule 1)</button>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label class="form-label" for="modalDepositRemarks">Remarks</label>
+                            <input type="text" id="modalDepositRemarks" class="form-input" placeholder="e.g. Cash deposit">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('depositModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Confirm Deposit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="modal-backdrop hidden">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title-group">
+                        <div class="icon-pill bg-warning-subtle">
+                            <i data-lucide="arrow-up-right" class="icon-sm text-warning"></i>
+                        </div>
+                        <div>
+                            <h3 class="modal-title">Withdraw Cash</h3>
+                            <p class="modal-subtitle">Processed by Stored Procedure <code>sp_withdraw_money</code></p>
+                        </div>
+                    </div>
+                    <button class="btn-close-modal" onclick="closeModal('withdrawModal')">&times;</button>
+                </div>
+                <form id="withdrawModalForm" onsubmit="handleWithdrawSubmit(event)">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="form-label" for="modalWithdrawAmount">Amount (₹)</label>
+                            <div class="input-icon-wrapper">
+                                <span class="currency-prefix">₹</span>
+                                <input type="number" id="modalWithdrawAmount" class="form-input pl-8" min="1" step="0.01" placeholder="2000" required>
+                            </div>
+                        </div>
+                        <div class="quick-amount-chips">
+                            <button type="button" class="chip-sm" onclick="document.getElementById('modalWithdrawAmount').value = 2000">₹2,000</button>
+                            <button type="button" class="chip-sm" onclick="document.getElementById('modalWithdrawAmount').value = 5000">₹5,000</button>
+                            <button type="button" class="chip-sm" onclick="document.getElementById('modalWithdrawAmount').value = 10000">₹10,000</button>
+                            <button type="button" class="chip-sm chip-warn" onclick="document.getElementById('modalWithdrawAmount').value = 60000">₹60,000 (Rule 1)</button>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label class="form-label" for="modalWithdrawRemarks">Remarks</label>
+                            <input type="text" id="modalWithdrawRemarks" class="form-input" placeholder="e.g. ATM withdrawal">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('withdrawModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Confirm Withdrawal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fraud Alert Details & Resolution Modal -->
+    <div id="fraudAlertModal" class="modal-backdrop hidden">
+        <div class="modal-dialog modal-dialog-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title-group">
+                        <div class="icon-pill bg-warning-subtle">
+                            <i data-lucide="shield-alert" class="icon-sm text-warning"></i>
+                        </div>
+                        <div>
+                            <h3 id="modalAlertTitle" class="modal-title">Fraud Alert Investigation</h3>
+                            <p class="modal-subtitle">Review anomaly details and take administrative action</p>
+                        </div>
+                    </div>
+                    <button class="btn-close-modal" onclick="closeModal('fraudAlertModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalAlertDetailsBody" class="alert-detail-container">
+                        <!-- Rendered dynamically -->
+                    </div>
+
+                    <div id="modalAlertActionBlock" class="mt-4 pt-4 border-t">
+                        <label class="form-label" for="modalResolutionRemarks">Resolution Audit Remarks</label>
+                        <input type="text" id="modalResolutionRemarks" class="form-input" placeholder="e.g. Customer verified via two-factor phone confirmation.">
+                        <input type="hidden" id="modalTargetAlertId">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('fraudAlertModal')">Close</button>
+                    <button type="button" id="btnModalApprove" class="btn btn-success" onclick="executeAlertResolution('APPROVE')">
+                        <i data-lucide="check" class="icon-sm"></i> Approve Transaction
+                    </button>
+                    <button type="button" id="btnModalReject" class="btn btn-danger" onclick="executeAlertResolution('REJECT')">
+                        <i data-lucide="rotate-ccw" class="icon-sm"></i> Reject & Reverse Funds
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ledger Audit Reconciliation Modal -->
+    <div id="auditReportModal" class="modal-backdrop hidden">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title-group">
+                        <div class="icon-pill bg-primary-subtle">
+                            <i data-lucide="calculator" class="icon-sm text-primary"></i>
+                        </div>
+                        <div>
+                            <h3 class="modal-title">PL/pgSQL Ledger Reconciliation</h3>
+                            <p class="modal-subtitle">Executing <code>fn_calculate_ledger_balance(p_account_id)</code></p>
+                        </div>
+                    </div>
+                    <button class="btn-close-modal" onclick="closeModal('auditReportModal')">&times;</button>
+                </div>
+                <div class="modal-body" id="auditReportModalBody">
+                    <div class="text-center py-4">
+                        <p class="text-secondary">Running database audit calculation...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('auditReportModal')">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="js/app.js"></script>
+</body>
+</html>
